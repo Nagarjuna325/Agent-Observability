@@ -1,0 +1,17 @@
+{
+  "name": "agentops-signoz-hackathon",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "!apps/demo-app",
+    "packages/*"
+  ],
+  "scripts": {
+    "swarm": "node apps/agents/dist/index.js",
+    "mission-control": "npm run dev -w @agentops/mission-control",
+    "buggyboard": "npm --prefix apps/demo-app/frontend run dev",
+    "reseed": "node scripts/reseed.mjs",
+    "verify-panels": "node scripts/verify-signoz-panels.mjs --hours 0.25",
+    "build:all": "npm run build -w @agentops/otel && npm run build -w @agentops/agents"
+  }
+}

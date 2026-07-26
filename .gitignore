@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+.env
+
+# Local working notes — kept on disk, deliberately not published.
+.claude/
+CLAUDE.md
+HANDOFF.md
+apps/demo-app/UPSTREAM_CLAUDE.md
+
+.env.local
+*.log
+infra/signoz/signoz-data/
+infra/signoz/signoz-src/
+apps/demo-app/backend/data/
