@@ -137,16 +137,26 @@ on agent failure rate.
 
 ---
 
-## Honesty guarantees
+## Guardrails
 
-- **The app is foreign code.** BuggyBoard is MIT-licensed by another author; LICENSE
-  and attribution are kept, and its commit history predates this project.
-- **The agents cannot cheat.** The answer key (`GROUND_TRUTH.md`) lives at the repo
-  root, while the Fix agent's filesystem access is sandboxed to
-  `apps/demo-app/backend`. `scripts/fix-scope-test.mjs` proves four escape routes —
-  relative traversal, absolute path, directory listing, and search — are all refused.
-- **The fix is a real code change**, applied to a real file and deployed by a real
-  process restart.
+An agent that edits source code and restarts a service needs hard limits. There are four:
+
+**Least-privilege filesystem access.** The Fix agent reaches the codebase only through
+a filesystem MCP server rooted at `apps/demo-app/backend`. It cannot resolve a path
+outside that directory — including the repo-root `GROUND_TRUTH.md`, which records the
+seeded defect for human reference. `scripts/fix-scope-test.mjs` asserts that relative
+traversal, absolute paths, directory listing, and search are all refused.
+
+**Pre-write validation.** A proposed patch must match its target exactly once, must
+actually change something, and is capped at 300 characters per side and a 200-byte
+net file delta. A violation aborts *before* anything is written.
+
+**Automatic rollback.** The original bytes are captured before the write. If the
+patched service fails its health check, they're restored and the service restarted
+again — mechanical reversion, not a second guess at the fix.
+
+**No retries.** One attempt per incident. Failures are surfaced with a specific
+reason rather than being absorbed and retried.
 
 ## Known limitations
 

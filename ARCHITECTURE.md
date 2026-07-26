@@ -183,25 +183,34 @@ Full presenter runbook with troubleshooting: **[DEMO.md](DEMO.md)**.
 
 ---
 
-## 5. Honesty guarantees
+## 5. Guardrails
 
-These are the claims a judge is most likely to probe:
+An agent that rewrites source code and restarts a live service needs hard limits.
 
-- **The app is foreign code.** BuggyBoard is MIT-licensed, by another author, and its
-  commit history predates the hackathon. LICENSE and attribution are kept.
-- **The agents cannot cheat.** `GROUND_TRUTH.md` documents the bug for humans and sits
-  at the repo root; the Fix agent's filesystem server is rooted at
-  `apps/demo-app/backend`. A committed test (`scripts/fix-scope-test.mjs`) proves four
-  different escape attempts — relative traversal, absolute path, directory listing,
-  and search — are all refused.
-- **Detection is real.** Monitor discovers the incident by querying SigNoz, exactly as
-  a human on-call would. Nothing signals it directly.
-- **The fix is a real code change**, applied to a real file and deployed by a real
-  process restart — verified by `git diff` and by the endpoint's behaviour changing.
-- **It generalises.** Verified by seeding a *completely different* bug the system was
-  never designed for (a call to a non-existent method, on a different route, at a
-  different line). Monitor detected it, Diagnosis named `src/index.ts:77` and the exact
-  cause, Fix repaired it, Verify confirmed it, and the incident closed `resolved`.
+**Least-privilege filesystem access.** Fix reaches the codebase only through a
+filesystem MCP server rooted at `apps/demo-app/backend`; no path outside it resolves.
+`scripts/fix-scope-test.mjs` asserts that relative traversal, absolute paths,
+directory listing, and search are all refused — including against the repo-root
+`GROUND_TRUTH.md`, which records the seeded defect for human reference and must never
+be reachable from the diagnosis path.
+
+**Pre-write validation.** A patch must match exactly once, must change something, and
+is capped at 300 characters per side and a 200-byte net delta. A violation aborts
+before any write.
+
+**Automatic rollback.** Original bytes are captured before writing. An unhealthy
+service after the patch triggers restoration and one more restart.
+
+**No retries, differentiated failures.** One attempt per incident, and the failure
+reason distinguishes agent error from infrastructure error.
+
+### Generalisation
+
+The pipeline is not tuned to the seeded defect. Tested by injecting a completely
+different bug — a call to a non-existent method, on a different route, at a different
+line — with no code or prompt changes: Monitor detected it, Diagnosis named
+`src/index.ts:77` with the correct cause, Fix repaired it, Verify confirmed it, and
+the incident closed `resolved`.
 
 ---
 
