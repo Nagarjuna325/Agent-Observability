@@ -1,0 +1,9 @@
+{
+  "name": "agentops-local",
+  "webhook_configs": [
+    {
+      "send_resolved": true,
+      "url": "http://localhost:4100/alerts"
+    }
+  ]
+}

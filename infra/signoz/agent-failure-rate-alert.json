@@ -1,0 +1,64 @@
+{
+  "alert": "AgentOps — Agent fleet failure rate high",
+  "alertType": "TRACES_BASED_ALERT",
+  "ruleType": "threshold_rule",
+  "version": "v5",
+  "schemaVersion": "v1",
+  "description": "More than 25% of agent step spans in service sdlc-agents ended in ERROR status. This watches the agents themselves, not the app they fix — a firing alert here means the swarm is unhealthy, independently of whether demo-api is.",
+  "evalWindow": "5m",
+  "frequency": "1m",
+  "disabled": false,
+  "preferredChannels": ["agentops-local"],
+  "labels": { "severity": "critical", "service": "sdlc-agents" },
+  "annotations": {
+    "summary": "Agent fleet failure rate above 25%",
+    "description": "{{$value}}% of agent step spans errored over the last 5 minutes. Check the incident root span's incident.failure_reason attribute before blaming agent reasoning — llm_error and telemetry_unavailable are infrastructure, not bad hypotheses."
+  },
+  "condition": {
+    "op": "1",
+    "matchType": "1",
+    "target": 25,
+    "targetUnit": "percent",
+    "selectedQueryName": "F1",
+    "compositeQuery": {
+      "queryType": "builder",
+      "panelType": "graph",
+      "unit": "percent",
+      "queries": [
+        {
+          "type": "builder_query",
+          "spec": {
+            "name": "A",
+            "signal": "traces",
+            "stepInterval": 60,
+            "disabled": true,
+            "legend": "errored agent spans",
+            "aggregations": [{ "expression": "count()" }],
+            "filter": { "expression": "service.name = 'sdlc-agents' AND name LIKE 'agent.%' AND has_error = true" }
+          }
+        },
+        {
+          "type": "builder_query",
+          "spec": {
+            "name": "B",
+            "signal": "traces",
+            "stepInterval": 60,
+            "disabled": true,
+            "legend": "all agent spans",
+            "aggregations": [{ "expression": "count()" }],
+            "filter": { "expression": "service.name = 'sdlc-agents' AND name LIKE 'agent.%'" }
+          }
+        },
+        {
+          "type": "builder_formula",
+          "spec": {
+            "name": "F1",
+            "expression": "A*100/B",
+            "disabled": false,
+            "legend": "agent failure rate"
+          }
+        }
+      ]
+    }
+  }
+}

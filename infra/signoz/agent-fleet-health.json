@@ -1,0 +1,507 @@
+{
+  "title": "AgentOps — Agent Fleet Health",
+  "description": "Observability of the SDLC agent swarm itself (service sdlc-agents): what each agent step did, how long it took, what it spent on LLM tokens, which MCP tools it called, and how often it failed. Panels that need span attributes (tokens, agent name, tool name, failure reason) use the traces data source, because span metrics only carry service.name/operation/span.kind/status.code.",
+  "tags": ["agentops", "sdlc-agents"],
+  "version": "v5",
+  "uploadedGrafana": false,
+  "panelMap": {},
+  "variables": {},
+  "layout": [
+    { "i": "a0000001-0000-4000-8000-000000000001", "x": 0, "y": 0, "w": 12, "h": 6, "moved": false, "static": false },
+    { "i": "a0000002-0000-4000-8000-000000000002", "x": 0, "y": 6, "w": 6, "h": 6, "moved": false, "static": false },
+    { "i": "a0000003-0000-4000-8000-000000000003", "x": 6, "y": 6, "w": 6, "h": 6, "moved": false, "static": false },
+    { "i": "a0000004-0000-4000-8000-000000000004", "x": 0, "y": 12, "w": 6, "h": 6, "moved": false, "static": false },
+    { "i": "a0000005-0000-4000-8000-000000000005", "x": 6, "y": 12, "w": 6, "h": 6, "moved": false, "static": false },
+    { "i": "a0000006-0000-4000-8000-000000000006", "x": 0, "y": 18, "w": 6, "h": 6, "moved": false, "static": false },
+    { "i": "a0000007-0000-4000-8000-000000000007", "x": 6, "y": 18, "w": 6, "h": 6, "moved": false, "static": false },
+    { "i": "a0000008-0000-4000-8000-000000000008", "x": 0, "y": 24, "w": 6, "h": 6, "moved": false, "static": false },
+    { "i": "a0000009-0000-4000-8000-000000000009", "x": 6, "y": 24, "w": 6, "h": 6, "moved": false, "static": false }
+  ],
+  "widgets": [
+    {
+      "id": "a0000001-0000-4000-8000-000000000001",
+      "title": "Agent step invocations",
+      "description": "How many times each agent step ran. Span metrics are enough here because `operation` already encodes agent + step (agent.diagnosis.run, agent.fix.restart, ...).",
+      "panelTypes": "graph",
+      "yAxisUnit": "none",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "a0000001-0000-4000-8000-0000000000a1",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "metrics",
+              "disabled": false,
+              "legend": "{{operation}}",
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "signoz_calls_total",
+                  "timeAggregation": "increase",
+                  "spaceAggregation": "sum"
+                }
+              ],
+              "filter": { "expression": "service.name = 'sdlc-agents' AND operation LIKE 'agent.%'" },
+              "groupBy": [
+                { "key": "operation", "dataType": "string", "type": "attribute", "id": "operation--string--attribute--false", "isColumn": false, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "a0000002-0000-4000-8000-000000000002",
+      "title": "Agent step latency — p50",
+      "description": "Median wall-clock duration of every agent step span.",
+      "panelTypes": "graph",
+      "yAxisUnit": "ns",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "a0000002-0000-4000-8000-0000000000a2",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "traces",
+              "disabled": false,
+              "legend": "{{name}}",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "p50(duration_nano)" }],
+              "filter": { "expression": "service.name = 'sdlc-agents' AND name LIKE 'agent.%'" },
+              "groupBy": [
+                { "key": "name", "dataType": "string", "type": "span", "id": "name--string--span--true", "isColumn": true, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "a0000003-0000-4000-8000-000000000003",
+      "title": "Agent step latency — p95",
+      "description": "Tail latency per agent step. The LLM steps (agent.diagnosis.llm, agent.fix.llm) and the restart step dominate here.",
+      "panelTypes": "graph",
+      "yAxisUnit": "ns",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "a0000003-0000-4000-8000-0000000000a3",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "traces",
+              "disabled": false,
+              "legend": "{{name}}",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "p95(duration_nano)" }],
+              "filter": { "expression": "service.name = 'sdlc-agents' AND name LIKE 'agent.%'" },
+              "groupBy": [
+                { "key": "name", "dataType": "string", "type": "span", "id": "name--string--span--true", "isColumn": true, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "a0000004-0000-4000-8000-000000000004",
+      "title": "LLM tokens by agent",
+      "description": "Token spend per agent, from gen_ai.usage.* span attributes. Only spans that carry gen_ai.request.model are counted, which excludes the non-LLM agents (Monitor makes zero LLM calls by design).",
+      "panelTypes": "table",
+      "yAxisUnit": "none",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "a0000004-0000-4000-8000-0000000000a4",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "traces",
+              "disabled": false,
+              "legend": "",
+              "stepInterval": 60,
+              "aggregations": [
+                { "expression": "sum(gen_ai.usage.input_tokens)", "alias": "input_tokens" },
+                { "expression": "sum(gen_ai.usage.output_tokens)", "alias": "output_tokens" }
+              ],
+              "filter": { "expression": "service.name = 'sdlc-agents' AND gen_ai.request.model EXISTS" },
+              "groupBy": [
+                { "key": "gen_ai.agent.name", "dataType": "string", "type": "attribute", "id": "gen_ai.agent.name--string--attribute--false", "isColumn": false, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "a0000005-0000-4000-8000-000000000005",
+      "title": "LLM token spend over time",
+      "description": "Fleet-wide input vs output tokens per minute — the cost curve of an incident.",
+      "panelTypes": "graph",
+      "yAxisUnit": "none",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "a0000005-0000-4000-8000-0000000000a5",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "traces",
+              "disabled": false,
+              "legend": "input tokens",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "sum(gen_ai.usage.input_tokens)" }],
+              "filter": { "expression": "service.name = 'sdlc-agents' AND gen_ai.request.model EXISTS" },
+              "groupBy": [],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            },
+            {
+              "queryName": "B",
+              "expression": "B",
+              "dataSource": "traces",
+              "disabled": false,
+              "legend": "output tokens",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "sum(gen_ai.usage.output_tokens)" }],
+              "filter": { "expression": "service.name = 'sdlc-agents' AND gen_ai.request.model EXISTS" },
+              "groupBy": [],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "a0000006-0000-4000-8000-000000000006",
+      "title": "MCP tool calls by tool",
+      "description": "Every gen_ai.tool.* child span, grouped by the literal MCP tool name. signoz_* tools come from the SigNoz MCP server, read_text_file/write_file from the scoped filesystem MCP server the Fix agent uses.",
+      "panelTypes": "table",
+      "yAxisUnit": "none",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "a0000006-0000-4000-8000-0000000000a6",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "traces",
+              "disabled": false,
+              "legend": "",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "count()" }],
+              "filter": { "expression": "service.name = 'sdlc-agents' AND gen_ai.tool.name EXISTS" },
+              "groupBy": [
+                { "key": "gen_ai.tool.name", "dataType": "string", "type": "attribute", "id": "gen_ai.tool.name--string--attribute--false", "isColumn": false, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "a0000007-0000-4000-8000-000000000007",
+      "title": "Agent failure rate (%)",
+      "description": "Share of agent step spans that ended in ERROR status. A = errored agent spans, B = all agent spans, plotted as A*100/B.",
+      "panelTypes": "graph",
+      "yAxisUnit": "percent",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "a0000007-0000-4000-8000-0000000000a7",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "traces",
+              "disabled": true,
+              "legend": "errored agent spans",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "count()" }],
+              "filter": { "expression": "service.name = 'sdlc-agents' AND name LIKE 'agent.%' AND has_error = true" },
+              "groupBy": [],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            },
+            {
+              "queryName": "B",
+              "expression": "B",
+              "dataSource": "traces",
+              "disabled": true,
+              "legend": "all agent spans",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "count()" }],
+              "filter": { "expression": "service.name = 'sdlc-agents' AND name LIKE 'agent.%'" },
+              "groupBy": [],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": [
+            {
+              "queryName": "F1",
+              "expression": "A*100/B",
+              "legend": "agent failure rate",
+              "disabled": false,
+              "limit": null,
+              "orderBy": []
+            }
+          ]
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "a0000008-0000-4000-8000-000000000008",
+      "title": "Errored agent steps",
+      "description": "Which steps actually failed. Zero-retry policy means one failure here closes the incident, so this table is the fleet's honest failure ledger.",
+      "panelTypes": "table",
+      "yAxisUnit": "none",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "a0000008-0000-4000-8000-0000000000a8",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "traces",
+              "disabled": false,
+              "legend": "",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "count()" }],
+              "filter": { "expression": "service.name = 'sdlc-agents' AND has_error = true" },
+              "groupBy": [
+                { "key": "name", "dataType": "string", "type": "span", "id": "name--string--span--true", "isColumn": true, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "a0000009-0000-4000-8000-000000000009",
+      "title": "Incident failures by reason",
+      "description": "incident.failure_reason written by the orchestrator on the incident root span. Filtered to spans that carry the attribute, so resolved incidents are absent by construction — infra flakiness (llm_error, telemetry_unavailable) stays distinguishable from bad reasoning (wrong_hypothesis).",
+      "panelTypes": "table",
+      "yAxisUnit": "none",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "a0000009-0000-4000-8000-0000000000a9",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "traces",
+              "disabled": false,
+              "legend": "",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "count()" }],
+              "filter": { "expression": "service.name = 'sdlc-agents' AND name = 'agent.orchestrator.incident' AND incident.failure_reason EXISTS" },
+              "groupBy": [
+                { "key": "incident.failure_reason", "dataType": "string", "type": "attribute", "id": "incident.failure_reason--string--attribute--false", "isColumn": false, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    }
+  ]
+}

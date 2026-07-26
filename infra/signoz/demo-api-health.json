@@ -1,0 +1,391 @@
+{
+  "title": "AgentOps — Demo API Health (BuggyBoard)",
+  "description": "The app the swarm fixes (service demo-api). This is what visibly goes red when the seeded bug is triggered on GET /api/bugs/:id and green again after the Fix agent patches and restarts it. Volume/status panels use span metrics; latency and error-rate panels use traces (per-span durations, no histogram bucketing).",
+  "tags": ["agentops", "demo-api"],
+  "version": "v5",
+  "uploadedGrafana": false,
+  "panelMap": {},
+  "variables": {},
+  "layout": [
+    { "i": "d0000001-0000-4000-8000-000000000001", "x": 0, "y": 0, "w": 6, "h": 6, "moved": false, "static": false },
+    { "i": "d0000002-0000-4000-8000-000000000002", "x": 6, "y": 0, "w": 6, "h": 6, "moved": false, "static": false },
+    { "i": "d0000003-0000-4000-8000-000000000003", "x": 0, "y": 6, "w": 12, "h": 6, "moved": false, "static": false },
+    { "i": "d0000004-0000-4000-8000-000000000004", "x": 0, "y": 12, "w": 6, "h": 6, "moved": false, "static": false },
+    { "i": "d0000005-0000-4000-8000-000000000005", "x": 6, "y": 12, "w": 6, "h": 6, "moved": false, "static": false },
+    { "i": "d0000006-0000-4000-8000-000000000006", "x": 0, "y": 18, "w": 6, "h": 6, "moved": false, "static": false },
+    { "i": "d0000007-0000-4000-8000-000000000007", "x": 6, "y": 18, "w": 6, "h": 6, "moved": false, "static": false }
+  ],
+  "widgets": [
+    {
+      "id": "d0000001-0000-4000-8000-000000000001",
+      "title": "Request volume by endpoint",
+      "description": "Server spans only — express middleware internals also emit span metrics under this service and would otherwise swamp the chart.",
+      "panelTypes": "graph",
+      "yAxisUnit": "none",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "d0000001-0000-4000-8000-0000000000b1",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "metrics",
+              "disabled": false,
+              "legend": "{{operation}}",
+              "stepInterval": 60,
+              "aggregations": [
+                { "metricName": "signoz_calls_total", "timeAggregation": "increase", "spaceAggregation": "sum" }
+              ],
+              "filter": { "expression": "service.name = 'demo-api' AND span.kind = 'SPAN_KIND_SERVER'" },
+              "groupBy": [
+                { "key": "operation", "dataType": "string", "type": "attribute", "id": "operation--string--attribute--false", "isColumn": false, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "d0000002-0000-4000-8000-000000000002",
+      "title": "HTTP 5xx responses",
+      "description": "The incident signal. Every bar here is a request that returned 500 — this is what the Monitor agent detects from SigNoz and what must return to zero after the fix.",
+      "panelTypes": "graph",
+      "yAxisUnit": "none",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "d0000002-0000-4000-8000-0000000000b2",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "metrics",
+              "disabled": false,
+              "legend": "{{operation}}",
+              "stepInterval": 60,
+              "aggregations": [
+                { "metricName": "signoz_calls_total", "timeAggregation": "increase", "spaceAggregation": "sum" }
+              ],
+              "filter": { "expression": "service.name = 'demo-api' AND http.status_code = '500'" },
+              "groupBy": [
+                { "key": "operation", "dataType": "string", "type": "attribute", "id": "operation--string--attribute--false", "isColumn": false, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "d0000003-0000-4000-8000-000000000003",
+      "title": "GET /api/bugs/:id — responses by status code",
+      "description": "The before/after panel for the demo: the seeded bug turns a missing-row lookup into a 500; a correct fix turns the same request into a 404.",
+      "panelTypes": "graph",
+      "yAxisUnit": "none",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "d0000003-0000-4000-8000-0000000000b3",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "metrics",
+              "disabled": false,
+              "legend": "HTTP {{http.status_code}}",
+              "stepInterval": 60,
+              "aggregations": [
+                { "metricName": "signoz_calls_total", "timeAggregation": "increase", "spaceAggregation": "sum" }
+              ],
+              "filter": { "expression": "service.name = 'demo-api' AND operation = 'GET /api/bugs/:id'" },
+              "groupBy": [
+                { "key": "http.status_code", "dataType": "string", "type": "attribute", "id": "http.status_code--string--attribute--false", "isColumn": false, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "d0000004-0000-4000-8000-000000000004",
+      "title": "Endpoint latency — p95",
+      "description": "Tail latency per route, from span durations. Restricted to spans that carry http.route, which is exactly the set of HTTP server spans.",
+      "panelTypes": "graph",
+      "yAxisUnit": "ns",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "d0000004-0000-4000-8000-0000000000b4",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "traces",
+              "disabled": false,
+              "legend": "{{http.route}}",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "p95(duration_nano)" }],
+              "filter": { "expression": "service.name = 'demo-api' AND http.route EXISTS" },
+              "groupBy": [
+                { "key": "http.route", "dataType": "string", "type": "attribute", "id": "http.route--string--attribute--false", "isColumn": false, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "d0000005-0000-4000-8000-000000000005",
+      "title": "Endpoint latency — p50",
+      "description": "Median per-route response time — the baseline the p95 panel should be read against.",
+      "panelTypes": "graph",
+      "yAxisUnit": "ns",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "d0000005-0000-4000-8000-0000000000b5",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "traces",
+              "disabled": false,
+              "legend": "{{http.route}}",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "p50(duration_nano)" }],
+              "filter": { "expression": "service.name = 'demo-api' AND http.route EXISTS" },
+              "groupBy": [
+                { "key": "http.route", "dataType": "string", "type": "attribute", "id": "http.route--string--attribute--false", "isColumn": false, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "d0000006-0000-4000-8000-000000000006",
+      "title": "API error rate (%)",
+      "description": "Share of HTTP server spans that ended in ERROR status. A = errored request spans, B = all request spans, plotted as A*100/B.",
+      "panelTypes": "graph",
+      "yAxisUnit": "percent",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "d0000006-0000-4000-8000-0000000000b6",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "traces",
+              "disabled": true,
+              "legend": "errored requests",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "count()" }],
+              "filter": { "expression": "service.name = 'demo-api' AND http.route EXISTS AND has_error = true" },
+              "groupBy": [],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            },
+            {
+              "queryName": "B",
+              "expression": "B",
+              "dataSource": "traces",
+              "disabled": true,
+              "legend": "all requests",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "count()" }],
+              "filter": { "expression": "service.name = 'demo-api' AND http.route EXISTS" },
+              "groupBy": [],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": [
+            {
+              "queryName": "F1",
+              "expression": "A*100/B",
+              "legend": "API error rate",
+              "disabled": false,
+              "limit": null,
+              "orderBy": []
+            }
+          ]
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    },
+    {
+      "id": "d0000007-0000-4000-8000-000000000007",
+      "title": "Errors by endpoint",
+      "description": "Which routes actually failed. In a clean demo run only /api/bugs/:id appears, and only while the seeded bug is live.",
+      "panelTypes": "table",
+      "yAxisUnit": "none",
+      "timePreferance": "GLOBAL_TIME",
+      "fillSpans": false,
+      "isStacked": false,
+      "isLogScale": false,
+      "stackedBarChart": false,
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "softMax": 0,
+      "softMin": 0,
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "thresholds": [],
+      "query": {
+        "id": "d0000007-0000-4000-8000-0000000000b7",
+        "queryType": "builder",
+        "builder": {
+          "queryData": [
+            {
+              "queryName": "A",
+              "expression": "A",
+              "dataSource": "traces",
+              "disabled": false,
+              "legend": "",
+              "stepInterval": 60,
+              "aggregations": [{ "expression": "count()" }],
+              "filter": { "expression": "service.name = 'demo-api' AND http.route EXISTS AND has_error = true" },
+              "groupBy": [
+                { "key": "http.route", "dataType": "string", "type": "attribute", "id": "http.route--string--attribute--false", "isColumn": false, "isJSON": false }
+              ],
+              "having": { "expression": "" },
+              "functions": [],
+              "limit": null,
+              "orderBy": []
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{ "name": "A", "query": "", "legend": "", "disabled": false }],
+        "promql": [{ "name": "A", "query": "", "legend": "", "disabled": false }]
+      }
+    }
+  ]
+}
