@@ -169,9 +169,3 @@ reason rather than being absorbed and retried.
 
 ---
 
-## Credits
-
-Demo application: **BuggyBoard** by Andrew Knight
-([AutomationPanda/buggyboard-web-app](https://github.com/AutomationPanda/buggyboard-web-app)),
-MIT — vendored unmodified except for the deliberately seeded bug.
-Observability backend: **SigNoz** (open source, self-hosted).
