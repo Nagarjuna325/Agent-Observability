@@ -14,3 +14,7 @@ apps/demo-app/UPSTREAM_CLAUDE.md
 infra/signoz/signoz-data/
 infra/signoz/signoz-src/
 apps/demo-app/backend/data/
+
+# Submission working drafts (local only)
+SUBMISSION_ANSWERS.md
+BLOG.md
