@@ -169,3 +169,15 @@ reason rather than being absorbed and retried.
 
 ---
 
+## Credits
+
+Demo application: **BuggyBoard** by Andrew Knight
+([AutomationPanda/buggyboard-web-app](https://github.com/AutomationPanda/buggyboard-web-app)),
+MIT licensed — vendored unmodified apart from the deliberately seeded bug. The agents
+fix code this project did not write.
+
+Observability backend: **[SigNoz](https://signoz.io)** (open source, self-hosted via
+[Foundry](https://github.com/SigNoz/foundry)).
+
+AI assistance: Claude Code (Anthropic) was used during development.
+
