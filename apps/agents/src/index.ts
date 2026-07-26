@@ -55,8 +55,7 @@ async function mcpReachable(): Promise<boolean> {
 
 async function preflight(): Promise<void> {
   const failures: string[] = [];
-  // AGENTS_GATE_SKIP_LLM_CHECK exists ONLY so Phase 8's key-independent gate (Part A)
-  // could exercise startup before the LLM key was provisioned. It bypasses this one
+  // Test hook: lets startup be exercised without an LLM key. It bypasses this one
   // check and nothing else; without it the key is mandatory.
   if (!process.env.GEMINI_API_KEY && process.env.AGENTS_GATE_SKIP_LLM_CHECK !== "1") {
     failures.push("GEMINI_API_KEY is not set (repo-root .env)");

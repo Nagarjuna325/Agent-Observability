@@ -408,9 +408,9 @@ export function runFix(hypothesis: Hypothesis, ctx: AgentCtx): Promise<FixResult
       return { status: "failed", failureReason: "llm_error" };
     }
 
-    // AGENTS_FIX_FORCE_BAD_PATCH exists ONLY to exercise the rollback path in Phase 9's
-    // gate. It corrupts a patch that already passed the guards, so it tests rollback
-    // rather than the guards. Never set it for the demo.
+    // Test hook: corrupts a patch that has ALREADY cleared the guards, so the
+    // rollback path can be exercised on demand without also tripping validation.
+    // Never set this outside a rollback test.
     const forceBad = process.env.AGENTS_FIX_FORCE_BAD_PATCH === "1";
     const replace = forceBad ? `${modelReplace}${eol})))` : modelReplace;
     span.setAttributes({

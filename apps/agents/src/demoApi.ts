@@ -37,7 +37,7 @@ let lastSurpriseDeathAt = 0;
 let stayDown = false;
 let lastExit: { code: number | null; signal: string | null; stderr: string } | null = null;
 
-/** Restart audit trail — Phase 9/10 correlate patch/verify windows against these. */
+/** Restart audit trail — Fix and Verify correlate their patch/verify windows against these. */
 export const restarts: Array<{ at: number; pid: number | undefined; reason: string }> = [];
 
 export function getDemoApiState(): { healthy: boolean; pid: number | null } {

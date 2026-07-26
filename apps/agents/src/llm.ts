@@ -13,7 +13,7 @@ export const LLM_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.6-flash";
 // Only 3.5-flash accepts thinkingBudget:0; the others 400 on it. Where thinking
 // can't be switched off it is drawn from maxOutputTokens, so the JSON answer needs
 // headroom on top of the caller's budget or the response comes back empty at
-// MAX_TOKENS (LEARNINGS, Phase 8).
+// MAX_TOKENS with no text at all.
 const THINKING_DISABLABLE = new Set(["gemini-3.5-flash"]);
 const THINKING_HEADROOM_TOKENS = 3072;
 
