@@ -1,0 +1,18 @@
+apiVersion: v1alpha1
+metadata:
+  name: signoz
+spec:
+  deployment:
+    mode: docker
+    flavor: compose
+  # Foundry ships the SigNoz MCP server as a first-class component. Enabling it here
+  # generates the `signoz-mcp` compose service (image signoz/signoz-mcp-server:latest,
+  # TRANSPORT_MODE=http, MCP_SERVER_PORT=8000, 8000:8000, SIGNOZ_URL pointed at the
+  # in-network signoz-signoz-0:8080). See CLAUDE.md for the deploy step.
+  mcp:
+    spec:
+      enabled: true
+      env:
+        # The real value is the service-account key from the gitignored repo-root
+        # .env. Substituted into ~/signoz/casting.yaml at cast time — never committed.
+        SIGNOZ_API_KEY: __FROM_DOTENV_SIGNOZ_API_KEY__
